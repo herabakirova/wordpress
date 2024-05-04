@@ -54,12 +54,25 @@ variable "az" {
 
 variable "key_path" {
   type        = string
-  default     = "/home/bakirovahera/.ssh/id_rsa.pub"
+  default     = "/home/ubuntu/.ssh/id_rsa.pub"
   description = "Provide the path to public key"
 }
 
+variable "db_username" {
+  type        = string
+  default     = "hera"
+  description = "description"
+}
+
+variable "db_password" {
+  type        = string
+  default     = "kaizen123" #REPLACE
+  description = "description"
+}
+
+
 variable "userdata" {
   type        = string
-  default     = "./userdata.sh"
+  default     = "./wp.sh"
   description = "description"
 }
