@@ -201,8 +201,8 @@ resource "null_resource" "wp" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt update && sudo apt upgrade -y",
-      "sudo apt install -y apache2 php libapache2-mod-php php-mysql",
+      "sudo apt-get update && sudo apt-get upgrade -y",
+      "sudo apt-get install -y apache2 php libapache2-mod-php php-mysql",
       "sudo systemctl enable apache2",
       "sudo systemctl start apache2",
       "cd /var/www/html",
@@ -212,8 +212,6 @@ resource "null_resource" "wp" {
       "sudo mv wordpress/* .",
       "sudo rm -rf wordpress latest.tar.gz",
       "sudo chown -R www-data:www-data /var/www/html",
-      "sudo find /var/www/html -type d -exec chmod 755 {} \\;",
-      "sudo find /var/www/html -type f -exec chmod 644 {} \\;",
       "sudo cp wp-config-sample.php wp-config.php",
       "sudo sed -i 's/database_name_here/${aws_db_instance.mysql.db_name}/g' wp-config.php",
       "sudo sed -i 's/username_here/${var.db_username}/g' wp-config.php",
