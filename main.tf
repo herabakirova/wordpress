@@ -1,7 +1,5 @@
 provider "aws" {
-  region     = var.region
-  access_key = "????"
-  secret_key = "????"
+  region = var.region
 }
 
 resource "aws_vpc" "vpc" {
@@ -11,23 +9,27 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "public1" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.cidr_public1
+  availability_zone = "us-east-2a"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "public2" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.cidr_public2
+  availability_zone = "us-east-2b"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "private1" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = var.cidr_private1
+  availability_zone = "us-east-2a"
 }
 
 resource "aws_subnet" "private2" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = var.cidr_private2
+  availability_zone = "us-east-2b"
 }
 
 resource "aws_internet_gateway" "gw" {
@@ -183,11 +185,12 @@ resource "aws_instance" "web" {
   subnet_id       = aws_subnet.public1.id
   key_name        = aws_key_pair.deployer.key_name
   security_groups = [aws_security_group.allow_tls.id]
-  user_data       = file(var.userdata)
+  user_data       = var.userdata
   depends_on = [
     aws_db_instance.mysql
   ]
 }
+
 resource "null_resource" "wp" {
   depends_on = [
     aws_instance.web
