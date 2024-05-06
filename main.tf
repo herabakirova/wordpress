@@ -163,10 +163,10 @@ resource "aws_db_subnet_group" "default" {
 
 resource "aws_db_instance" "mysql" {
   allocated_storage      = 10
-  db_name                = "mydb"
+  db_name                = var.db_name
   engine                 = "mysql"
   engine_version         = "8.0"
-  instance_class         = "db.t3.micro"
+  instance_class         = var.db_instance_class
   db_subnet_group_name   = aws_db_subnet_group.default.name
   vpc_security_group_ids = [aws_security_group.deny_all.id]
   username               = var.db_username
@@ -191,36 +191,36 @@ resource "aws_instance" "web" {
   ]
 }
 
-resource "null_resource" "wp" {
-  depends_on = [
-    aws_instance.web
-  ]
-  connection {
-    host        = aws_instance.web.public_ip
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = file("~/.ssh/id_rsa")
-  }
+# resource "null_resource" "wp" {
+#   depends_on = [
+#     aws_instance.web
+#   ]
+#   connection {
+#     host        = aws_instance.web.public_ip
+#     type        = "ssh"
+#     user        = "ubuntu"
+#     private_key = file("~/.ssh/id_rsa")
+#   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update && sudo apt-get upgrade -y",
-      "sudo apt-get install -y apache2 php libapache2-mod-php php-mysql",
-      "sudo systemctl enable apache2",
-      "sudo systemctl start apache2",
-      "cd /var/www/html",
-      "sudo rm index.html",
-      "sudo wget https://wordpress.org/latest.tar.gz",
-      "sudo tar -xzf latest.tar.gz",
-      "sudo mv wordpress/* .",
-      "sudo rm -rf wordpress latest.tar.gz",
-      "sudo chown -R www-data:www-data /var/www/html",
-      "sudo cp wp-config-sample.php wp-config.php",
-      "sudo sed -i 's/database_name_here/${aws_db_instance.mysql.db_name}/g' wp-config.php",
-      "sudo sed -i 's/username_here/${var.db_username}/g' wp-config.php",
-      "sudo sed -i 's/password_here/${var.db_password}/g' wp-config.php",
-      "sudo sed -i 's/localhost/${aws_db_instance.mysql.endpoint}/g' wp-config.php",
-      "sudo systemctl restart apache2"
-    ]
-  }
-}
+#   provisioner "remote-exec" {
+#     inline = [
+#       "sudo apt-get update && sudo apt-get upgrade -y",
+#       "sudo apt-get install -y apache2 php libapache2-mod-php php-mysql",
+#       "sudo systemctl enable apache2",
+#       "sudo systemctl start apache2",
+#       "cd /var/www/html",
+#       "sudo rm index.html",
+#       "sudo wget https://wordpress.org/latest.tar.gz",
+#       "sudo tar -xzf latest.tar.gz",
+#       "sudo mv wordpress/* .",
+#       "sudo rm -rf wordpress latest.tar.gz",
+#       "sudo chown -R www-data:www-data /var/www/html",
+#       "sudo cp wp-config-sample.php wp-config.php",
+#       "sudo sed -i 's/database_name_here/${aws_db_instance.mysql.db_name}/g' wp-config.php",
+#       "sudo sed -i 's/username_here/${var.db_username}/g' wp-config.php",
+#       "sudo sed -i 's/password_here/${var.db_password}/g' wp-config.php",
+#       "sudo sed -i 's/localhost/${aws_db_instance.mysql.endpoint}/g' wp-config.php",
+#       "sudo systemctl restart apache2"
+#     ]
+#   }
+# }

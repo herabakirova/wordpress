@@ -54,8 +54,20 @@ variable "az" {
 
 variable "key_path" {
   type        = string
-  default     = "/home/ubuntu/.ssh/id_rsa.pub"
+  default     = "/Users/herabakirova/.ssh/id_rsa.pub"
   description = "Provide the path to public key"
+}
+
+variable "db_name" {
+  type        = string
+  default     = "mysql_db"
+  description = "description"
+}
+
+variable db_instance_class {
+  type        = string
+  default     = "db.t3.micro"
+  description = "description"
 }
 
 variable "db_username" {
