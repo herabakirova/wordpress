@@ -54,7 +54,7 @@ variable "az" {
 
 variable "key_path" {
   type        = string
-  default     = "/Users/herabakirova/.ssh/id_rsa.pub"
+  default     = "/home/ubuntu/.ssh/id_rsa.pub"
   description = "Provide the path to public key"
 }
 

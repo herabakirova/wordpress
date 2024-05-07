@@ -9,26 +9,26 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "public1" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.cidr_public1
-  availability_zone = "us-east-2a"
+  availability_zone       = "us-east-2a"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "public2" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.cidr_public2
-  availability_zone = "us-east-2b"
+  availability_zone       = "us-east-2b"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "private1" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.cidr_private1
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.cidr_private1
   availability_zone = "us-east-2a"
 }
 
 resource "aws_subnet" "private2" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.cidr_private2
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.cidr_private2
   availability_zone = "us-east-2b"
 }
 
@@ -105,10 +105,10 @@ resource "aws_security_group" "allow_tls" {
   }
 
   egress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = [aws_subnet.private1.cidr_block]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -127,7 +127,12 @@ resource "aws_security_group" "deny_all" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  egress = []
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_key_pair" "deployer" {
@@ -191,36 +196,37 @@ resource "aws_instance" "web" {
   ]
 }
 
-# resource "null_resource" "wp" {
-#   depends_on = [
-#     aws_instance.web
-#   ]
-#   connection {
-#     host        = aws_instance.web.public_ip
-#     type        = "ssh"
-#     user        = "ubuntu"
-#     private_key = file("~/.ssh/id_rsa")
-#   }
+resource "null_resource" "wp" {
+  depends_on = [
+    aws_instance.web
+  ]
+  connection {
+    host        = aws_instance.web.public_ip
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("~/.ssh/id_rsa")
+  }
 
-#   provisioner "remote-exec" {
-#     inline = [
-#       "sudo apt-get update && sudo apt-get upgrade -y",
-#       "sudo apt-get install -y apache2 php libapache2-mod-php php-mysql",
-#       "sudo systemctl enable apache2",
-#       "sudo systemctl start apache2",
-#       "cd /var/www/html",
-#       "sudo rm index.html",
-#       "sudo wget https://wordpress.org/latest.tar.gz",
-#       "sudo tar -xzf latest.tar.gz",
-#       "sudo mv wordpress/* .",
-#       "sudo rm -rf wordpress latest.tar.gz",
-#       "sudo chown -R www-data:www-data /var/www/html",
-#       "sudo cp wp-config-sample.php wp-config.php",
-#       "sudo sed -i 's/database_name_here/${aws_db_instance.mysql.db_name}/g' wp-config.php",
-#       "sudo sed -i 's/username_here/${var.db_username}/g' wp-config.php",
-#       "sudo sed -i 's/password_here/${var.db_password}/g' wp-config.php",
-#       "sudo sed -i 's/localhost/${aws_db_instance.mysql.endpoint}/g' wp-config.php",
-#       "sudo systemctl restart apache2"
-#     ]
-#   }
-# }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install apache2 ghostscript libapache2-mod-php mysql-server php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xml php-zip -y",
+      "sudo mkdir -p /srv/www",
+      "sudo systemctl start apache2",
+      "sudo chown www-data: /srv/www",
+      "curl https://wordpress.org/latest.tar.gz | sudo -u www-data tar zx -C /srv/www",
+      "echo '<VirtualHost *:80>\nDocumentRoot /srv/www/wordpress\n<Directory /srv/www/wordpress>\nOptions FollowSymLinks\nAllowOverride Limit Options FileInfo\nDirectoryIndex index.php\nRequire all granted\n</Directory>\n<Directory /srv/www/wordpress/wp-content>\nOptions FollowSymLinks\nRequire all granted\n</Directory>\n</VirtualHost>' | sudo tee /etc/apache2/sites-available/wordpress.conf > /dev/null",
+      "sudo a2ensite wordpress",
+      "sudo a2enmod rewrite",
+      "sudo a2dissite 000-default",
+      "sudo service apache2 reload",
+      "sudo -u www-data cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php",
+      "sudo sed -i 's/database_name_here/${aws_db_instance.mysql.db_name}/g' /srv/www/wordpress/wp-config.php",
+      "sudo sed -i 's/username_here/${var.db_username}/g' /srv/www/wordpress/wp-config.php",
+      "sudo sed -i 's/password_here/${var.db_password}/g' /srv/www/wordpress/wp-config.php",
+      "sudo sed -i 's/localhost/${aws_db_instance.mysql.endpoint}/g' /srv/www/wordpress/wp-config.php",
+      "sudo service apache2 reload"
+    ]
+  }
+}
+
