@@ -10,6 +10,7 @@ variable "cidr" {
   description = "Provide CIDR block"
 }
 
+
 variable "cidr_public1" {
   type        = string
   default     = "10.0.1.0/24"
