@@ -9,27 +9,27 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "public1" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.cidr_public1
-  availability_zone       = "us-east-2a"
+  availability_zone       = var.az_public1
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "public2" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.cidr_public2
-  availability_zone       = "us-east-2b"
+  availability_zone       = var.az_public2
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "private1" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.cidr_private1
-  availability_zone = "us-east-2a"
+  availability_zone = var.az_private1
 }
 
 resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.cidr_private2
-  availability_zone = "us-east-2b"
+  availability_zone = var.az_private2
 }
 
 resource "aws_internet_gateway" "gw" {
@@ -83,10 +83,9 @@ resource "aws_route_table_association" "d" {
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_security_group" "allow_tls" {
-  name        = "allow_tls"
+resource "aws_security_group" "sg_instance" {
+  name        = "sg-instance"
   vpc_id      = aws_vpc.vpc.id
-  description = "Allow TLS inbound traffic"
 
   ingress {
     description = "TLS from VPC"
@@ -112,9 +111,9 @@ resource "aws_security_group" "allow_tls" {
   }
 }
 
-resource "aws_security_group" "deny_all" {
+resource "aws_security_group" "sg_db" {
   vpc_id = aws_vpc.vpc.id
-  name   = "db"
+  name   = "sg-db"
   ingress {
     from_port   = 3306
     to_port     = 3306
@@ -135,8 +134,8 @@ resource "aws_security_group" "deny_all" {
   }
 }
 
-resource "aws_key_pair" "deployer" {
-  key_name   = "project"
+resource "aws_key_pair" "key-project" {
+  key_name   = var.key_name
   public_key = file(var.key_path)
 }
 
@@ -158,12 +157,8 @@ data "aws_ami" "ubuntu" {
 
 
 resource "aws_db_subnet_group" "default" {
-  name       = "main"
+  name       = var.db_subnet_name
   subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
-
-  tags = {
-    Name = "My DB subnet group"
-  }
 }
 
 resource "aws_db_instance" "mysql" {
@@ -179,11 +174,6 @@ resource "aws_db_instance" "mysql" {
   skip_final_snapshot    = true
 }
 
-output "db_endpoint" {
-  value       = aws_db_instance.mysql.endpoint
-  description = "Endpoint of the MySQL DB"
-}
-
 resource "aws_instance" "web" {
   ami             = data.aws_ami.ubuntu.id
   instance_type   = var.instance_type
@@ -191,6 +181,9 @@ resource "aws_instance" "web" {
   key_name        = aws_key_pair.deployer.key_name
   security_groups = [aws_security_group.allow_tls.id]
   user_data       = var.userdata
+  tags = {
+    Name = var.instance_name
+  }
   depends_on = [
     aws_db_instance.mysql
   ]
