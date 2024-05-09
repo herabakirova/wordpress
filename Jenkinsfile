@@ -27,8 +27,10 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
     stage ("Terraform init") {
         sh 'terraform init'
     }
-
-}
-}
+    stage ("Terraform apply") {
+        sh 'terraform apply'
     }
+}
+}
+}
 } 
