@@ -10,16 +10,10 @@ spec:
   - command:
     - sleep
     - "3600"
-    image: hashicorp/terraform
+    image: herabakirova/terraform:21.0
     imagePullPolicy: Always
     name: terraform
     '''
-
-tfvars = '''
-region="us-east-2"
-ami_id="ami-019f9b3318b7155c5"
-az="us-east-2a"
-'''
 
 podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
     node ("terraform") {
@@ -33,10 +27,7 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
     stage ("Terraform init") {
         sh 'terraform init'
     }
-    stage ("Terraform apply") {
-        sh 'terraform apply'
-    }
-    }
+
 }
 }
 }
