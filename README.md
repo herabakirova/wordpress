@@ -2,7 +2,7 @@
 
 ```hcl
 module "wordpress" {
-source = "
+source = "herabakirova/1/wordpress"
 region = "us-east-2"
 cidr = "10.0.0.0/16"
 cidr_public1 = "10.0.1.0/24"
