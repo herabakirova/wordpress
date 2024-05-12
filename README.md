@@ -26,3 +26,4 @@ db_password = ""
 instance_name = "wordpress"
 userdata = "./wp.sh"
 }
+```
