@@ -83,7 +83,7 @@ resource "aws_route_table_association" "d" {
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_security_group" "sg_instance" {
+resource "aws_security_group" "scrgrp_instance" {
   name        = "sg-instance"
   vpc_id      = aws_vpc.vpc.id
 
@@ -111,7 +111,7 @@ resource "aws_security_group" "sg_instance" {
   }
 }
 
-resource "aws_security_group" "sg_db" {
+resource "aws_security_group" "scrgrp_db" {
   vpc_id = aws_vpc.vpc.id
   name   = "sg-db"
   ingress {
@@ -167,7 +167,7 @@ resource "aws_db_instance" "mysql" {
   engine_version         = "8.0"
   instance_class         = var.db_instance_class
   db_subnet_group_name   = aws_db_subnet_group.default.name
-  vpc_security_group_ids = [aws_security_group.sg_db.id]
+  vpc_security_group_ids = [aws_security_group.scrgrp_db.id]
   username               = var.db_username
   password               = var.db_password
   skip_final_snapshot    = true
@@ -178,7 +178,7 @@ resource "aws_instance" "web" {
   instance_type   = var.instance_type
   subnet_id       = aws_subnet.public1.id
   key_name        = aws_key_pair.deployer.key_name
-  security_groups = [aws_security_group.sg_instance.id]
+  security_groups = [aws_security_group.scrgrp_instance.id]
   user_data       = var.userdata
   tags = {
     Name = var.instance_name
