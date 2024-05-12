@@ -204,7 +204,7 @@ resource "null_resource" "wp" {
     host        = aws_instance.web.public_ip
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file("~/.ssh/id_rsa")
+    private_key = file(var.private_key_path)
   }
 
   provisioner "remote-exec" {

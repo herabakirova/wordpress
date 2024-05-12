@@ -26,5 +26,6 @@ db_username = ""
 db_password = ""
 instance_name = "wordpress"
 userdata = "./wp.sh"
+private_key_path = "/home/ubuntu/.ssh/id_rsa"
 }
 ```
