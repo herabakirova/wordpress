@@ -84,7 +84,7 @@ resource "aws_route_table_association" "d" {
 }
 
 resource "aws_security_group" "scrgrp_instance" {
-  name        = "sg-instance"
+  name        = "security-instance"
   vpc_id      = aws_vpc.vpc.id
 
   ingress {
@@ -113,7 +113,7 @@ resource "aws_security_group" "scrgrp_instance" {
 
 resource "aws_security_group" "scrgrp_db" {
   vpc_id = aws_vpc.vpc.id
-  name   = "sg-db"
+  name   = "security-db"
   ingress {
     from_port   = 3306
     to_port     = 3306
