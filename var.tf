@@ -130,3 +130,9 @@ variable "userdata" {
   default     = "./wp.sh"
   description = "Provide the path to the userdata file"
 }
+
+variable "private_key_path" {
+  type        = string
+  default     = "~/.ssh/id_rsa"
+  description = "Provide the path to the private key"
+}
