@@ -2,7 +2,7 @@
 
 ```hcl
 module "wordpress" {
-source = "herabakirova/1/wordpress"
+source = "herabakirova/wordpress/aws"
 version = "0.0.1"
 region = "us-east-2"
 cidr = "10.0.0.0/16"
