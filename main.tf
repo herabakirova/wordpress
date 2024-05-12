@@ -134,7 +134,7 @@ resource "aws_security_group" "scrgrp_db" {
   }
 }
 
-resource "aws_key_pair" "key-project" {
+resource "aws_key_pair" "key_project" {
   key_name   = var.key_name
   public_key = file(var.key_path)
 }
@@ -177,7 +177,7 @@ resource "aws_instance" "web" {
   ami             = data.aws_ami.ubuntu.id
   instance_type   = var.instance_type
   subnet_id       = aws_subnet.public1.id
-  key_name        = aws_key_pair.deployer.key_name
+  key_name        = aws_key_pair.key_project.key_name
   security_groups = [aws_security_group.scrgrp_instance.id]
   user_data       = var.userdata
   tags = {
