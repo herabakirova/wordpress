@@ -167,7 +167,7 @@ resource "aws_db_instance" "mysql" {
   engine_version         = "8.0"
   instance_class         = var.db_instance_class
   db_subnet_group_name   = aws_db_subnet_group.default.name
-  vpc_security_group_ids = [aws_security_group.deny_all.id]
+  vpc_security_group_ids = [aws_security_group.sg_db.id]
   username               = var.db_username
   password               = var.db_password
   skip_final_snapshot    = true
@@ -178,7 +178,7 @@ resource "aws_instance" "web" {
   instance_type   = var.instance_type
   subnet_id       = aws_subnet.public1.id
   key_name        = aws_key_pair.deployer.key_name
-  security_groups = [aws_security_group.allow_tls.id]
+  security_groups = [aws_security_group.sg_instance.id]
   user_data       = var.userdata
   tags = {
     Name = var.instance_name
