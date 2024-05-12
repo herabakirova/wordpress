@@ -155,7 +155,6 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-
 resource "aws_db_subnet_group" "default" {
   name       = var.db_subnet_name
   subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
@@ -173,7 +172,6 @@ resource "aws_db_instance" "mysql" {
   password               = var.db_password
   skip_final_snapshot    = true
 }
-
 
 resource "aws_instance" "web" {
   ami             = data.aws_ami.ubuntu.id
